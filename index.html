@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#090d18">
-<title>Video Reverse Playback Studio v1.1</title>
+<title>Video Reverse Playback Studio v1.2</title>
 <style>
 :root{color-scheme:dark;--bg:#090d18;--panel:#111a2b;--panel2:#172238;--line:#26344d;--text:#eff4ff;--muted:#9aabc5;--blue:#7186ff;--cyan:#45d8de;--green:#67e0aa;--pink:#fb82bb}
 *{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 15% -10%,#26346a 0,transparent 38%),radial-gradient(ellipse at 100% 30%,#123548 0,transparent 30%),var(--bg);color:var(--text);font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;min-height:100vh}
@@ -12,7 +12,7 @@ button,input,select{font:inherit}button{border:1px solid var(--line);background:
 </style>
 </head>
 <body>
-<header><div class="brand"><div class="logo">⏪</div><div><h1>동영상 역재생 스튜디오 <span class="version">v1.1</span></h1><p>내 브라우저에서 바로 불러오고 역재생</p></div></div><div class="local">● 로컬 처리 · 서버 업로드 없음</div></header>
+<header><div class="brand"><div class="logo">⏪</div><div><h1>동영상 역재생 스튜디오 <span class="version">v1.2</span></h1><p>내 브라우저에서 바로 불러오고 역재생</p></div></div><div class="local">● 로컬 처리 · 서버 업로드 없음</div></header>
 <main>
 <section class="intro"><h2>영상의 흐름을 <span class="gradient">거꾸로 재생</span>하세요</h2><p>파일 전체를 메모리에 복사하지 않아 긴 영상도 부담을 줄여 미리 볼 수 있습니다.</p></section>
 <section class="card">
@@ -27,11 +27,11 @@ button,input,select{font:inherit}button{border:1px solid var(--line);background:
 <div class="side">
 <div class="card"><h3>재생 속도 <span id="speedLabel" class="small">1.0×</span></h3><div class="speedopts"><button data-speed="0.5">0.5×</button><button data-speed="1" class="active">1×</button><button data-speed="1.5">1.5×</button><button data-speed="2">2×</button><button data-speed="4">4×</button><button data-speed="8">8×</button></div><input id="speed" class="speedRange" type="range" min="0.25" max="8" step="0.25" value="1"><p class="small">역재생 배속은 브라우저가 프레임을 찾아가는 방식으로 동작합니다. 배속이 높거나 고해상도일 때는 기기 성능에 따라 화면이 건너뛸 수 있습니다.</p></div>
 <div class="card"><h3>영상 정보</h3><div class="meta"><div><span>파일 크기</span><b id="size">—</b></div><div><span>재생 시간</span><b id="infoDuration">—</b></div><div><span>화면 크기</span><b id="resolution">—</b></div><div><span>형식</span><b id="format">—</b></div></div></div>
-<div class="card"><h3>이 버전의 추가 기능</h3><div class="notice">배경과 버튼 디자인을 새로 구성하고, 역재생 배속 선택, 키보드 조작, 긴 영상 미리보기, 현재 화면 캡처를 추가했습니다. 선택한 파일은 이 브라우저 탭 안에서만 열립니다.</div><div class="actions" style="margin-top:12px"><button id="snapshot">📸 현재 화면 저장</button></div></div>
+<div class="card"><h3>역재생 파일 만들기</h3><p class="small">현재 영상의 역방향 화면을 WebM 파일로 저장합니다. 브라우저가 화면을 프레임 단위로 인코딩하므로 긴 영상은 처리 시간이 길고 메모리를 많이 쓸 수 있습니다. 오디오는 포함하지 않습니다.</p><div class="actions" style="margin:12px 0"><button id="export" class="accent">⬇ 역재생 영상 내보내기</button></div><div id="exportBox" class="hidden"><div class="small" id="exportText">준비 중</div><progress id="exportProgress" max="100" value="0" style="width:100%;accent-color:#45d8de"></progress><button id="cancelExport" class="danger">취소</button></div></div><div class="card"><h3>v1.2 주요 기능</h3><div class="notice">배경과 버튼 디자인을 새로 구성하고, 역재생 배속 선택, 키보드 조작, 긴 영상 미리보기, 현재 화면 캡처를 추가했습니다. 선택한 파일은 이 브라우저 탭 안에서만 열립니다.</div><div class="actions" style="margin-top:12px"><button id="snapshot">📸 현재 화면 저장</button></div></div>
 </div>
 </div>
 </section>
-<p class="foot">Video Reverse Playback Studio · v1.1 · 파일은 기기 밖으로 전송되지 않습니다.</p>
+<p class="foot">Video Reverse Playback Studio · v1.2 · 파일은 기기 밖으로 전송되지 않습니다.</p>
 </main><div id="toast" class="toast"></div>
 <script>
 const $=id=>document.getElementById(id), video=$('video'), fileInput=$('file');
@@ -52,6 +52,39 @@ $('stepBack').onclick=()=>{video.pause();playing=false;video.currentTime=Math.ma
 $('fullscreen').onclick=()=> $('videoWrap').requestFullscreen?.();$('snapshot').onclick=()=>{if(!video.videoWidth)return toast('먼저 영상을 선택해 주세요.');const c=document.createElement('canvas');c.width=video.videoWidth;c.height=video.videoHeight;c.getContext('2d').drawImage(video,0,0);const a=document.createElement('a');a.download='video-frame.png';a.href=c.toDataURL('image/png');a.click()};
 $('unload').onclick=()=>{playing=false;cancelAnimationFrame(raf);video.pause();video.removeAttribute('src');video.load();if(objectUrl)URL.revokeObjectURL(objectUrl);objectUrl=null;$('workspace').classList.add('hidden');$('fileline').classList.add('hidden');fileInput.value=''};
 $('sample').onclick=()=>{const c=document.createElement('canvas');c.width=640;c.height=360;const stream=c.captureStream(24),rec=new MediaRecorder(stream);let chunks=[];rec.ondataavailable=e=>chunks.push(e.data);rec.onstop=()=>{const blob=new Blob(chunks,{type:'video/webm'});loadFile(new File([blob],'sample.webm',{type:'video/webm'}));const v=document.createElement('video');v.muted=true;v.src=URL.createObjectURL(blob);v.onloadeddata=()=>{const ctx=c.getContext('2d'),start=performance.now();function draw(now){ctx.fillStyle='#10182a';ctx.fillRect(0,0,640,360);ctx.fillStyle='#7588ff';ctx.beginPath();ctx.arc(80+((now-start)/20%480),180,36,0,Math.PI*2);ctx.fill();ctx.fillStyle='white';ctx.font='bold 38px system-ui';ctx.fillText('Reverse Studio · '+((Math.floor((now-start)/1000)%6)+1),80,80);if(now-start<6000)requestAnimationFrame(draw);else{rec.stop();stream.getTracks().forEach(t=>t.stop())}}requestAnimationFrame(draw)}};rec.start();setTimeout(()=>{if(rec.state==='recording')rec.stop()},6200)};
-window.onkeydown=e=>{if(e.target.matches('input'))return;if(e.code==='Space'&&video.src){e.preventDefault();$('play').click()}if(e.code==='ArrowLeft'&&video.src){video.currentTime=Math.max(0,video.currentTime-1);e.preventDefault()}if(e.code==='ArrowRight'&&video.src){video.currentTime=Math.min(video.duration,video.currentTime+1);e.preventDefault()}if(e.key==='r'&&video.src)setDirection(-1)};
+
+let exportAbort=false;
+async function exportReverse(){
+ if(!video.src||!video.duration)return toast('먼저 영상을 선택해 주세요.');
+ if(!window.MediaRecorder||!HTMLCanvasElement.prototype.captureStream)return toast('현재 브라우저는 영상 내보내기를 지원하지 않습니다.');
+ const btn=$('export');btn.disabled=true;exportAbort=false;$('exportBox').classList.remove('hidden');$('exportProgress').value=0;
+ const fps=24,dur=video.duration,w=video.videoWidth,h=video.videoHeight,canvas=document.createElement('canvas');canvas.width=w;canvas.height=h;
+ const cx=canvas.getContext('2d',{alpha:false}),stream=canvas.captureStream(fps),chunks=[];
+ let mime='video/webm;codecs=vp9';if(!MediaRecorder.isTypeSupported(mime))mime='video/webm';
+ let recorder;try{recorder=new MediaRecorder(stream,{mimeType:mime,videoBitsPerSecond:5000000})}catch(e){btn.disabled=false;return toast('이 브라우저는 WebM 녹화를 지원하지 않습니다.')}
+ recorder.ondataavailable=e=>{if(e.data.size)chunks.push(e.data)};
+ const finished=new Promise(resolve=>recorder.onstop=resolve);recorder.start(1000);
+ const frames=Math.ceil(dur*fps);
+ try{
+  for(let i=0;i<frames;i++){
+   if(exportAbort)break;
+   const t=Math.max(0,dur-(i/fps));video.currentTime=t;
+   await new Promise(resolve=>{
+    let done=false;const finish=()=>{if(done)return;done=true;resolve()};
+    if(video.requestVideoFrameCallback)video.requestVideoFrameCallback(finish);
+    video.addEventListener('seeked',finish,{once:true});setTimeout(finish,1500);
+   });
+   cx.drawImage(video,0,0,w,h);
+   await new Promise(resolve=>setTimeout(resolve,1000/fps));
+   if(i%4===0){$('exportProgress').value=Math.round((i+1)/frames*100);$('exportText').textContent='프레임 인코딩 중 '+(i+1)+' / '+frames+' · '+Math.round((i+1)/frames*100)+'%'}
+  }
+ }catch(e){toast('내보내기 중 오류: '+e.message)}
+ if(recorder.state==='recording')recorder.stop();await finished;stream.getTracks().forEach(t=>t.stop());btn.disabled=false;
+ if(chunks.length&&!exportAbort){const blob=new Blob(chunks,{type:mime}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='reversed_'+(($('filename').textContent.split(' · ')[0]||'video').replace(/\.[^.]+$/,''))+'.webm';a.click();setTimeout(()=>URL.revokeObjectURL(url),60000);toast('역재생 WebM 파일을 저장했습니다. (오디오 제외)')}
+ else if(exportAbort)toast('내보내기를 취소했습니다.');
+ $('exportText').textContent=exportAbort?'취소됨':'완료';video.currentTime=0;
+}
+$('export').onclick=exportReverse;$('cancelExport').onclick=()=>{exportAbort=true};
+\nwindow.onkeydown=e=>{if(e.target.matches('input'))return;if(e.code==='Space'&&video.src){e.preventDefault();$('play').click()}if(e.code==='ArrowLeft'&&video.src){video.currentTime=Math.max(0,video.currentTime-1);e.preventDefault()}if(e.code==='ArrowRight'&&video.src){video.currentTime=Math.min(video.duration,video.currentTime+1);e.preventDefault()}if(e.key==='r'&&video.src)setDirection(-1)};
 </script>
 </body></html>
